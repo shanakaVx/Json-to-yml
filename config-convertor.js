@@ -1,64 +1,75 @@
+const readline = require('readline');
 const https = require('https');
 const fs = require('fs');
 
-https.get('https://ppe-socket-configservice.interop-svc.stg-prsn.com/uiservice/ppe', res => {
-    let data = '';
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+});
 
-    let configJsonString = {}
+rl.question('Please enter the config URL: ', (configUrl) => {
+    https.get(configUrl, res => {
+        let data = '';
 
-    res.on('data', chunk => {
-        data += chunk.toString();
-    });
+        let configJsonString = {}
 
-    res.on('end', ()=> {
-        const configs = JSON.parse(data);
-        for(const propertySource of configs.propertySources) {
-            const singleSource = propertySource.source;
-            configJsonString = {...configJsonString, ...singleSource}
-        }
-        const sortedKeys = Object.keys(configJsonString).sort();
+        res.on('data', chunk => {
+            data += chunk.toString();
+        });
 
-        let previousKeyArray = [];
-        let currentKeyArray = [];
-        const indent = "  ";
-        let yamlLine = "";
+        res.on('end', ()=> {
+            const configs = JSON.parse(data);
+            for(const propertySource of configs.propertySources) {
+                const singleSource = propertySource.source;
+                configJsonString = {...configJsonString, ...singleSource}
+            }
+            const sortedKeys = Object.keys(configJsonString).sort();
 
-        const writeStream = fs.createWriteStream('configs.yml', 'utf8');
+            let previousKeyArray = [];
+            let currentKeyArray = [];
+            const indent = "  ";
+            let yamlLine = "";
 
-        let isKeysDifferent = false;
-        
-        for(const key of sortedKeys) {
-            currentKeyArray = key.split(".");
+            const writeStream = fs.createWriteStream('configs.yml', 'utf8');
 
-            currentKeyArray.forEach((yamlKey, index) => {
-                if(!isKeysDifferent && previousKeyArray[index] === yamlKey) {
-                    return;
-                }
-                isKeysDifferent = true;
-                yamlLine += indent.repeat(index) + yamlKey;
-                if(index < currentKeyArray.length - 1) {
-                    yamlLine += ":\n";
-                }
+            let isKeysDifferent = false;
+            
+            for(const key of sortedKeys) {
+                currentKeyArray = key.split(".");
+
+                currentKeyArray.forEach((yamlKey, index) => {
+                    if(!isKeysDifferent && previousKeyArray[index] === yamlKey) {
+                        return;
+                    }
+                    isKeysDifferent = true;
+                    yamlLine += indent.repeat(index) + yamlKey;
+                    if(index < currentKeyArray.length - 1) {
+                        yamlLine += ":\n";
+                    }
+                });
+
+                isKeysDifferent = false;
+
+                yamlLine += ": " + configJsonString[key] + "\n";
+                writeStream.write(yamlLine);
+
+                previousKeyArray = currentKeyArray;
+                yamlLine = "";
+            }
+
+            writeStream.end();
+            writeStream.on('finish', () => {
+                console.log('File has been written successfully.');
+                rl.close();
             });
 
-            isKeysDifferent = false;
-
-            yamlLine += ": " + configJsonString[key] + "\n";
-            writeStream.write(yamlLine);
-
-            previousKeyArray = currentKeyArray;
-            yamlLine = "";
-        }
-
-        writeStream.end();
-        writeStream.on('finish', () => {
-            console.log('File has been written successfully.');
+            writeStream.on('error', (err) => {
+                console.error('An error occurred writing to file:', err);
+                rl.close();
+            });
         });
-
-        writeStream.on('error', (err) => {
-            console.error('An error occurred writing to file:', err);
-        });
+    }).on('error', err => {
+        console.log(err);
+        rl.close();
     });
-}).on('error', err => {
-    console.log(err);
 });
