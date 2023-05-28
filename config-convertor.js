@@ -59,12 +59,12 @@ rl.question('Please enter the config URL: ', (configUrl) => {
 
             writeStream.end();
             writeStream.on('finish', () => {
-                console.log('File has been written successfully.');
+                console.log('Config file has been written successfully. Check the root folder');
                 rl.close();
             });
 
             writeStream.on('error', (err) => {
-                console.error('An error occurred writing to file:', err);
+                console.error('An error occurred writing to the config file:', err);
                 rl.close();
             });
         });
