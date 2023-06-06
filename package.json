@@ -1,0 +1,20 @@
+{
+  "name": "config-converter",
+  "version": "1.0.0",
+  "description": "JSON Config to YAML convertor",
+  "main": "config-convertor.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shanakaVx/Json-to-yml.git"
+  },
+  "keywords": [],
+  "author": "3plng Builder <3plng.builder@pearson.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shanakaVx/Json-to-yml/issues"
+  },
+  "homepage": "https://github.com/shanakaVx/Json-to-yml#readme"
+}
