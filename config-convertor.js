@@ -2,8 +2,9 @@ const readline = require('readline');
 const https = require('https');
 const fs = require('fs');
 
-if(process.argv[2].trim().length == 0) {
-    console.log('Usage CLI arguments: <baseUrl for the config server> <service name> <environment>' )
+if(process.argv.length < 5) {
+    console.log('-----------\nUsage \nCLI arguments: <baseUrl for the config server> <service name> <environment>\n-----------' );
+    process.exit();
 }
 
 const configBaseUrl = process.argv[2];
