@@ -1,3 +1,4 @@
 # Json-to-yml
 ## Needs NodeJs
-### Just give the path to JSON config when prompted
+### Usage
+`node config-convertor.js <baseUrl for the config server> <service name> <environment>`
